@@ -9,10 +9,11 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Flash;
 use Response;
+use Spatie\Permission\Models\Role as SpRole;
+use Spatie\Permission\Models\Permission as SpPermission;
 
 class rolesController extends AppBaseController
 {
-    /** @var rolesRepository $rolesRepository*/
     private $rolesRepository;
 
     public function __construct(rolesRepository $rolesRepo)
@@ -20,137 +21,90 @@ class rolesController extends AppBaseController
         $this->rolesRepository = $rolesRepo;
     }
 
-    /**
-     * Display a listing of the roles.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
     public function index(Request $request)
     {
         $roles = $this->rolesRepository->all();
-
-        return view('roles.index')
-            ->with('roles', $roles);
+        return view('roles.index')->with('roles', $roles);
     }
 
-    /**
-     * Show the form for creating a new roles.
-     *
-     * @return Response
-     */
     public function create()
     {
         return view('roles.create');
     }
 
-    /**
-     * Store a newly created roles in storage.
-     *
-     * @param CreaterolesRequest $request
-     *
-     * @return Response
-     */
     public function store(CreaterolesRequest $request)
     {
         $input = $request->all();
-
         $roles = $this->rolesRepository->create($input);
-
         Flash::success('Roles saved successfully.');
-
         return redirect(route('roles.index'));
     }
 
-    /**
-     * Display the specified roles.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function show($id)
     {
         $roles = $this->rolesRepository->find($id);
-
         if (empty($roles)) {
             Flash::error('Roles not found');
-
             return redirect(route('roles.index'));
         }
-
         return view('roles.show')->with('roles', $roles);
     }
 
-    /**
-     * Show the form for editing the specified roles.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function edit($id)
     {
         $roles = $this->rolesRepository->find($id);
-
         if (empty($roles)) {
             Flash::error('Roles not found');
-
             return redirect(route('roles.index'));
         }
-
         return view('roles.edit')->with('roles', $roles);
     }
 
-    /**
-     * Update the specified roles in storage.
-     *
-     * @param int $id
-     * @param UpdaterolesRequest $request
-     *
-     * @return Response
-     */
     public function update($id, UpdaterolesRequest $request)
     {
         $roles = $this->rolesRepository->find($id);
-
         if (empty($roles)) {
             Flash::error('Roles not found');
-
             return redirect(route('roles.index'));
         }
-
         $roles = $this->rolesRepository->update($request->all(), $id);
-
         Flash::success('Roles updated successfully.');
-
         return redirect(route('roles.index'));
     }
 
-    /**
-     * Remove the specified roles from storage.
-     *
-     * @param int $id
-     *
-     * @throws \Exception
-     *
-     * @return Response
-     */
     public function destroy($id)
     {
         $roles = $this->rolesRepository->find($id);
-
         if (empty($roles)) {
             Flash::error('Roles not found');
-
             return redirect(route('roles.index'));
         }
-
         $this->rolesRepository->delete($id);
-
         Flash::success('Roles deleted successfully.');
+        return redirect(route('roles.index'));
+    }
 
+    public function assignPermissions($id)
+    {
+        $role = SpRole::findOrFail($id);
+        $permissions = SpPermission::all();
+        return view('roles.assignpermissions')
+            ->with('role', $role)->with('permissions',$permissions);
+    }
+
+    public function updatePermissions($id, Request $request)
+    {
+        $role = SpRole::findOrFail($id);;
+        $permissions = SpPermission::all();
+        foreach($permissions as $permission) {
+            if (isset($request->permission[$permission->id])) {
+                $role->givePermissionTo($permission);
+            }
+            else {
+                $role->revokePermissionTo($permission);
+            }
+        }
+        Flash::success('Roles updated successfully.');
         return redirect(route('roles.index'));
     }
 }
