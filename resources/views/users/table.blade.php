@@ -2,9 +2,6 @@
     <thead>
         <th>Name</th>
         <th>Email</th>
-        <th>Email Verified At</th>
-        <th>Password</th>
-        <th>Remember Token</th>
         <th colspan="3">Action</th>
     </thead>
     <tbody>
@@ -12,15 +9,13 @@
         <tr>
             <td>{!! $users->name !!}</td>
             <td>{!! $users->email !!}</td>
-            <td>{!! $users->email_verified_at !!}</td>
-            <td>{!! $users->password !!}</td>
-            <td>{!! $users->remember_token !!}</td>
             <td>
                 {!! Form::open(['route' => ['users.destroy', $users->id], 'method' => 'delete']) !!}
                 <div class='btn-group'>
-                    <a href="{!! route('users.show', [$users->id]) !!}" class='btn btn-default btn-xs'><i class="far fa-eye"></i></i></a>
-                    <a href="{!! route('users.edit', [$users->id]) !!}" class='btn btn-default btn-xs'><i class="far fa-edit"></i></i></a>
-                    {!! Form::button('<i class="far fa-trash-alt"></i></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                    <a href="{!! route('users.show', [$users->id]) !!}" class='btn btn-default btn-xs'><i class="far fa-eye"></i></a>
+                    <a href="{!! route('users.edit', [$users->id]) !!}" class='btn btn-default btn-xs'><i class="far fa-edit"></i></a>
+                    <a href="{{ route('users.assignroles', [$users->id]) }}" class='btn btn-default btn-xs'><i class="far fa-user-tag"></i></a>
+                    {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
                 </div>
                 {!! Form::close() !!}
             </td>
