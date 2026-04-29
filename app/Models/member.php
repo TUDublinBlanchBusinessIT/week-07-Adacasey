@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,4 +76,8 @@ class member extends Model
     {
         return $this->hasMany(\App\Models\Booking::class, 'memberid');
     }
+    public function user()
+{
+    return $this->belongsTo(\App\User::class,'userid','id');
+}
 }

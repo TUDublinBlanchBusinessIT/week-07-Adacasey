@@ -14,4 +14,5 @@ Route::resource('members', App\Http\Controllers\memberController::class);
 Route::resource('courts', App\Http\Controllers\courtController::class);
 Route::resource('bookings', App\Http\Controllers\bookingController::class);
 
+Route::get('/loggedInMember','App\Http\Controllers\memberController@getLoggedInMemberDetails');
 require __DIR__.'/auth.php';

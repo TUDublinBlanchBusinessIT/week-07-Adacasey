@@ -9,6 +9,7 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Flash;
 use Response;
+use Illuminate\Support\Facades\Auth;
 
 class memberController extends AppBaseController
 {
@@ -20,137 +21,81 @@ class memberController extends AppBaseController
         $this->memberRepository = $memberRepo;
     }
 
-    /**
-     * Display a listing of the member.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
     public function index(Request $request)
     {
         $members = $this->memberRepository->all();
-
-        return view('members.index')
-            ->with('members', $members);
+        return view('members.index')->with('members', $members);
     }
 
-    /**
-     * Show the form for creating a new member.
-     *
-     * @return Response
-     */
     public function create()
     {
         return view('members.create');
     }
 
-    /**
-     * Store a newly created member in storage.
-     *
-     * @param CreatememberRequest $request
-     *
-     * @return Response
-     */
     public function store(CreatememberRequest $request)
     {
         $input = $request->all();
-
         $member = $this->memberRepository->create($input);
-
         Flash::success('Member saved successfully.');
-
         return redirect(route('members.index'));
     }
 
-    /**
-     * Display the specified member.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function show($id)
     {
         $member = $this->memberRepository->find($id);
-
         if (empty($member)) {
             Flash::error('Member not found');
-
             return redirect(route('members.index'));
         }
-
         return view('members.show')->with('member', $member);
     }
 
-    /**
-     * Show the form for editing the specified member.
-     *
-     * @param int $id
-     *
-     * @return Response
-     */
     public function edit($id)
     {
         $member = $this->memberRepository->find($id);
-
         if (empty($member)) {
             Flash::error('Member not found');
-
             return redirect(route('members.index'));
         }
-
         return view('members.edit')->with('member', $member);
     }
 
-    /**
-     * Update the specified member in storage.
-     *
-     * @param int $id
-     * @param UpdatememberRequest $request
-     *
-     * @return Response
-     */
     public function update($id, UpdatememberRequest $request)
     {
         $member = $this->memberRepository->find($id);
-
         if (empty($member)) {
             Flash::error('Member not found');
-
             return redirect(route('members.index'));
         }
-
         $member = $this->memberRepository->update($request->all(), $id);
-
         Flash::success('Member updated successfully.');
-
         return redirect(route('members.index'));
     }
 
-    /**
-     * Remove the specified member from storage.
-     *
-     * @param int $id
-     *
-     * @throws \Exception
-     *
-     * @return Response
-     */
     public function destroy($id)
     {
         $member = $this->memberRepository->find($id);
-
         if (empty($member)) {
             Flash::error('Member not found');
-
             return redirect(route('members.index'));
         }
-
         $this->memberRepository->delete($id);
-
         Flash::success('Member deleted successfully.');
-
         return redirect(route('members.index'));
+    }
+
+    public function getLoggedInMemberDetails()
+    {
+        if (!Auth::guest()){
+            $user = Auth::user();
+            echo "Userid is " . $user->id;
+            echo "Member id is " . $user->member->id;
+            echo "The member's name is " . $user->member->firstname . " ";
+            echo $user->member->surname;
+            echo "The member is a " . $user->member->membertype;
+        }
+        else {
+            echo "not logged in ";
+        }
     }
 }
